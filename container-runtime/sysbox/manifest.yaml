@@ -1,0 +1,10 @@
+version: v1alpha1
+metadata:
+  name: sysbox
+  version: "$VERSION"
+  author: CosmicRocks
+  description: |
+    This system extension provides sysbox using containerd's runtime handler.
+  compatibility:
+    talos:
+      version: ">= v1.0.0"
