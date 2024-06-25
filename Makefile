@@ -82,6 +82,7 @@ TARGETS += qlogic-firmware
 TARGETS += realtek-firmware
 TARGETS += spin
 TARGETS += stargz-snapshotter
+TARGETS += sysbox
 TARGETS += tailscale
 TARGETS += thunderbolt
 TARGETS += usb-modem-drivers
