@@ -30,6 +30,7 @@ spec:
     - qlogic-firmware
     - realtek-firmware
     - spin
+    - sysbox
     - stargz-snapshotter
     - tailscale
     - thunderbolt

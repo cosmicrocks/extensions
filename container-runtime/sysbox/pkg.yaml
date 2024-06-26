@@ -5,43 +5,35 @@ dependencies:
   - stage: base
 steps:
   - sources:
-      - url: https://github.com/nestybox/sysbox/archive/refs/tags/v0.6.3.tar.gz
-        destination: sysbox.tar.gz
-        sha256: 68d53c40c061e767ce760c5c6fde6cbd7687d8ba06f36455c0aa46b15a1a8a05
-        sha512: ae3d325ded6e9621c2ad9df23df4d6fd3e5646fbd31ca6cd0f8f519a6aa5a5ad15e4d352a6c632f885c90c8d55c5d9ae4512e8eef0b02c49c9f10fb3962f3a6f
-    env:
-      GOPATH: /go
+    - url: https://sysbox.s3.amazonaws.com/sysbox-ce_0.6.4-0.linux_amd64.tar
+      destination: sysbox-ce_0.6.4-0.linux_amd64.zip
+      sha256: d871bf745feeb0ae0f782129ef3ad17e4b4e0a5c100d27c324ca5e596a5b9896
+      sha512: 9cc4ddfb51fb7f29208655061b82897daed6eb207609eb62096f78ef5c1f8328c33ac0171db935a439ef32c9762da173c799eec466c19e2900d7b7e00a525563
     prepare:
       - |
-        apk add --no-cache \
-          git \
-          build-base \
-          linux-headers
-
-        mkdir -p /usr/src
-        ln -s /usr/include/linux /usr/src/linux-headers-$(uname -r)
-      - |
         sed -i 's#$VERSION#{{ .VERSION }}#' /pkg/manifest.yaml
-      - |
-        mkdir -p ${GOPATH}/src/github.com/nestybox/sysbox
-
-        tar -xzf sysbox.tar.gz --strip-components=1 -C ${GOPATH}/src/github.com/nestybox/sysbox
-    build:
-      - |
-        export PATH=${PATH}:${TOOLCHAIN}/go/bin
-
-        cd ${GOPATH}/src/github.com/nestybox/sysbox
-
-        git clone https://github.com/nestybox/sysbox.git
-        cd sysbox
-        git submodule update --init --recursive
-        protoc --version && sleep 100
-        # make sysbox-static-local
-
     install:
       - |
+        apk add --no-cache unzip
+      - |
         mkdir -p /rootfs/usr/local/bin
-        make install DESTDIR=/rootfs/usr/local/bin
+
+      - |
+        tar -xvf sysbox-ce_0.6.4-0.linux_amd64.zip
+
+      - |
+        cp data/usr/bin/sysbox-runc /rootfs/usr/local/bin/sysbox-runc
+      - |
+        cp data/usr/bin/sysbox-mgr /rootfs/usr/local/bin/sysbox-mgr
+      - |
+        cp data/usr/bin/sysbox-fs /rootfs/usr/local/bin/sysbox-fs
+
+    test:
+      - |
+        mkdir -p /extensions-validator-rootfs
+        cp -r /rootfs/ /extensions-validator-rootfs/rootfs
+        cp /pkg/manifest.yaml /extensions-validator-rootfs/manifest.yaml
+        /extensions-validator validate --rootfs=/extensions-validator-rootfs --pkg-name="${PKG_NAME}"
 finalize:
   - from: /rootfs
     to: /rootfs
@@ -49,5 +41,3 @@ finalize:
     to: /
   - from: /pkg/sysbox.part
     to: /rootfs/etc/cri/conf.d/sysbox.part
-  - from: /pkg/runsc.toml
-    to: /rootfs/etc/cri/conf.d/runsc.toml
