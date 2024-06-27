@@ -1,6 +1,4 @@
-[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runsc]
-  runtime_type = "io.containerd.runsc.v1"
-
-[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runsc.options]
-  TypeUrl = "io.containerd.runsc.v1.options"
-  ConfigPath = "/etc/cri/conf.d/runsc.toml"
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.sysbox-runc]
+  runtime_type = "oci"
+  allowed_annotations = ["io.kubernetes.cri-o.userns-mode"]
+  runtime_path = "/usr/local/bin/sysbox-runc"

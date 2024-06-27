@@ -1,6 +1,7 @@
 go 1.22
 
 use (
+	./container-runtime/sysbox/src
 	./examples/hello-world-service/src
 	./nvidia-gpu/nvidia-container-toolkit/nvidia-container-runtime-wrapper
 	./nvidia-gpu/nvidia-container-toolkit/nvidia-persistenced-wrapper

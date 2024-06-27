@@ -12,21 +12,33 @@ steps:
     prepare:
       - |
         sed -i 's#$VERSION#{{ .VERSION }}#' /pkg/manifest.yaml
+
+    build:
+      - |
+        export PATH=${PATH}:${TOOLCHAIN}/go/bin
+
+        cd /pkg/src
+        CGO_ENABLED=0 go build -o ./sysbox-mgr-wrapper .
     install:
       - |
-        apk add --no-cache unzip
-      - |
-        mkdir -p /rootfs/usr/local/bin
+        apk add --no-cache rsync
 
       - |
         tar -xvf sysbox-ce_0.6.4-0.linux_amd64.zip
+        mkdir -p /rootfs/usr/local/bin
+        cp data/usr/bin/sysbox-runc /rootfs/usr/local/bin/sysbox-runc
 
       - |
-        cp data/usr/bin/sysbox-runc /rootfs/usr/local/bin/sysbox-runc
+        mkdir -p /rootfs/usr/local/lib/containers/sysbox-mgr/usr/local/bin/
+        cp /bin/sh /rootfs/usr/local/lib/containers/sysbox-mgr/usr/local/bin
+        cp /usr/bin/rsync /rootfs/usr/local/lib/containers/sysbox-mgr/usr/local/bin
+        cp /toolchain/bin/mount /rootfs/usr/local/lib/containers/sysbox-mgr/usr/local/bin
+        cp -pr data/usr/bin/sysbox-mgr /rootfs/usr/local/lib/containers/sysbox-mgr/usr/local/bin
+        cp -pr /pkg/src/sysbox-mgr-wrapper /rootfs/usr/local/lib/containers/sysbox-mgr/usr/local/bin
+
       - |
-        cp data/usr/bin/sysbox-mgr /rootfs/usr/local/bin/sysbox-mgr
-      - |
-        cp data/usr/bin/sysbox-fs /rootfs/usr/local/bin/sysbox-fs
+        mkdir -p /rootfs/usr/local/lib/containers/sysbox-fs/usr/local/bin/
+        cp -pr data/usr/bin/sysbox-fs /rootfs/usr/local/lib/containers/sysbox-fs/usr/local/bin
 
     test:
       - |
@@ -41,3 +53,7 @@ finalize:
     to: /
   - from: /pkg/sysbox.part
     to: /rootfs/etc/cri/conf.d/sysbox.part
+  - from: /pkg/sysbox-mgr.yaml
+    to: /rootfs/usr/local/etc/containers/
+  - from: /pkg/sysbox-fs.yaml
+    to: /rootfs/usr/local/etc/containers/

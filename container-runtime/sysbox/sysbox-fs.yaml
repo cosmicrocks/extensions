@@ -1,0 +1,14 @@
+name: sysbox-fs
+depends:
+  - service: cri
+container:
+  entrypoint: /usr/local/bin/sysbox-fs
+  mounts:
+    - source: /var/lib
+      destination: /var/lib
+      type: bind
+      options:
+        - rshared
+        - rbind
+        - rw
+restart: always

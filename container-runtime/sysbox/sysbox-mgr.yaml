@@ -1,0 +1,25 @@
+name: sysbox-mgr
+depends:
+  - service: cri
+container:
+  entrypoint: /usr/local/bin/sysbox-mgr-wrapper
+  environment:
+  - PATH=/bin:/sbin:/usr/local/bin
+  mounts:
+    ## Required for sh and rsync
+    - source: /usr/local/bin
+      destination: /bin
+      type: bind
+      options:
+        - rshared
+        - rbind
+        - rw
+    ## Required for modprobe and iptables
+    - source: /sbin
+      destination: /sbin
+      type: bind
+      options:
+        - rshared
+        - rbind
+        - ro
+restart: always
